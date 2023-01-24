@@ -7,6 +7,8 @@ public class EnderecoResquestDTO {
     private String cep;
     private Long idPessoa;
 
+    private Boolean principal;
+
     public String getRua() {
         return rua;
     }
@@ -37,5 +39,13 @@ public class EnderecoResquestDTO {
 
     public void setIdPessoa(Long idPessoa) {
         this.idPessoa = idPessoa;
+    }
+
+    public Boolean getPrincipal() {
+        return principal;
+    }
+
+    public void setPrincipal(Boolean principal) {
+        this.principal = principal;
     }
 }

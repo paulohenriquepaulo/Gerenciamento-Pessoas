@@ -1,5 +1,6 @@
 package com.paulohenrique.gerenciar_pessoas.controller;
 
+import com.paulohenrique.gerenciar_pessoas.dto.PessoaEditarRequestDTO;
 import com.paulohenrique.gerenciar_pessoas.dto.PessoaRequestDTO;
 import com.paulohenrique.gerenciar_pessoas.dto.PessoaResponseDTO;
 import com.paulohenrique.gerenciar_pessoas.mapper.PessoaMapper;
@@ -12,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.time.LocalDate;
+import java.util.List;
 
 @RestController
 @RequestMapping("/pessoa")
@@ -30,4 +32,24 @@ public class PessoaController {
         PessoaResponseDTO responseDTO = pessoaMapper.toPessoaReponseDTO(novaPessoa);
         return ResponseEntity.ok(responseDTO);
     }
+
+    @GetMapping
+    public ResponseEntity<PessoaResponseDTO> buscarPessoaPorId(@RequestParam
+                                                    Long id) {
+        Pessoa pessoa = pessoaService.buscarPessoaPorId(id);
+        return ResponseEntity.ok(pessoaMapper.toPessoaReponseDTO(pessoa));
+    }
+
+    @GetMapping("/listar")
+    public ResponseEntity<List<PessoaResponseDTO>> buscarPessoas() {
+        List<Pessoa> pessoas = pessoaService.listarPessoas();
+        return ResponseEntity.ok(pessoaMapper.toPessoaReponseDTO(pessoas));
+    }
+
+    @PatchMapping()
+    public ResponseEntity<PessoaResponseDTO> buscarPessoas(@RequestBody PessoaEditarRequestDTO pessoaEditarRequestDTO) {
+        Pessoa pessoa = pessoaService.editarPessoa(pessoaMapper.toPessoa(pessoaEditarRequestDTO));
+        return ResponseEntity.ok(pessoaMapper.toPessoaReponseDTO(pessoa));
+    }
+
 }

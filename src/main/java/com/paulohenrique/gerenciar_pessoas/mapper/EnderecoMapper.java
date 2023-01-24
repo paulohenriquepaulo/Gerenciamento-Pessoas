@@ -22,6 +22,7 @@ public interface EnderecoMapper {
     @Mapping(target = "endereco.cidade", source = "cidade")
     @Mapping(target = "endereco.estado", source = "estado")
     @Mapping(target = "endereco.cep", source = "cep")
+    @Mapping(target = "endereco.principal", source = "principal")
     EnderecoResponseDTO toEnderecoResponse(Endereco endereco);
 
 }

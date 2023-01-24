@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.paulohenrique.gerenciar_pessoas.dto.EnderecoDTO;
 import com.paulohenrique.gerenciar_pessoas.exeception.ExeceptionPersonalizada;
 import com.paulohenrique.gerenciar_pessoas.model.Endereco;
+import com.paulohenrique.gerenciar_pessoas.model.Pessoa;
 import com.paulohenrique.gerenciar_pessoas.repository.EnderecoRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -14,6 +15,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class EnderecoService {
@@ -27,19 +31,25 @@ public class EnderecoService {
     static int codigoSucesso = 200;
 
     public Endereco cadastrarEndereco(Endereco endereco) throws IOException {
-        endereco.setPessoa(pessoaService.buscarPessoaPorId(endereco.getPessoa().getId()));
+        Pessoa p = pessoaService.buscarPessoaPorId(endereco.getPessoa().getId());
+        if (endereco.getPrincipal()) {
+            mudarEnderecoPrincipal(p);
+        }
+        endereco.setPessoa(p);
+
         EnderecoDTO enderecoDTO = buscarEnderecoPeloCep(endereco.getCep());
         endereco.setCidade(enderecoDTO.getLocalidade());
         endereco.setEstado(enderecoDTO.getUf());
         endereco.setBairro(enderecoDTO.getBairro());
         return enderecoRepository.save(endereco);
     }
+
     private EnderecoDTO buscarEnderecoPeloCep(String cep) throws IOException {
         String urlChamada = webService + cep + "/json";
         URL url = new URL(urlChamada);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         if (connection.getResponseCode() != codigoSucesso) {
-            throw new ExeceptionPersonalizada("CEP invalido" , HttpStatus.NOT_FOUND);
+            throw new ExeceptionPersonalizada("CEP invalido", HttpStatus.NOT_FOUND);
         }
         BufferedReader resposta = new BufferedReader
                 (new InputStreamReader((connection.getInputStream())));
@@ -49,5 +59,13 @@ public class EnderecoService {
         EnderecoDTO endereco = gson.fromJson(jsonEmString, EnderecoDTO.class);
 
         return endereco;
+    }
+
+    private void mudarEnderecoPrincipal(Pessoa pessoa) {
+        pessoa.getEnderecos().stream()
+                .filter(e -> e.getPrincipal() == true)
+                .forEach(e -> {
+                    e.setPrincipal(false);
+                });
     }
 }
